@@ -1,0 +1,602 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SchuldenKompass - Dein Weg aus den Schulden</title>
+    <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        :root {
+            /* Apple-like color scheme */
+            --primary: #007AFF;
+            --primary-light: rgba(0, 122, 255, 0.1);
+            --primary-dark: #0062CC;
+            --background: #F5F5F7;
+            --surface: #FFFFFF;
+            --surface-elevated: #FFFFFF;
+            --text-primary: #1D1D1F;
+            --text-secondary: #86868B;
+            --bubble-user: #007AFF;
+            --bubble-bot: #F2F2F7;
+            --bubble-text-user: #FFFFFF;
+            --bubble-text-bot: #1C1C1E;
+            --border-color: #D1D1D6;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius-sm: 8px;
+            --radius-lg: 12px;
+            --spacing-1: 4px;
+            --spacing-2: 8px;
+            --spacing-3: 12px;
+            --spacing-4: 16px;
+            --spacing-5: 20px;
+            --spacing-6: 24px;
+        }
+        
+        /* Dark mode support */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #1C1C1E;
+                --surface: #2C2C2E;
+                --surface-elevated: #3A3A3C;
+                --text-primary: #F5F5F7;
+                --text-secondary: #98989D;
+                --bubble-user: #0A84FF;
+                --bubble-bot: #3A3A3C;
+                --bubble-text-user: #FFFFFF;
+                --bubble-text-bot: #F5F5F7;
+                --border-color: #38383A;
+            }
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.5;
+            color: var(--text-primary);
+            background-color: var(--background);
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: var(--spacing-4);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+            max-height: 100vh;
+            padding-bottom: 0;
+        }
+        
+        header {
+            background-color: var(--surface);
+            padding: var(--spacing-4) 0;
+            box-shadow: var(--shadow-sm);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+        
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-3);
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-4);
+        }
+
+        .logo {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, var(--primary), #5E5CE6);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            margin: var(--spacing-2) 0;
+            padding: var(--spacing-3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-3);
+            scroll-behavior: smooth;
+            padding-bottom: var(--spacing-2);
+        }
+
+        /* Custom scrollbar */
+        .chat-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .chat-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .chat-container::-webkit-scrollbar-thumb {
+            background-color: var(--border-color);
+            border-radius: 3px;
+        }
+        
+        .message {
+            max-width: 85%;
+            padding: var(--spacing-3) var(--spacing-4);
+            line-height: 1.5;
+            position: relative;
+            word-wrap: break-word;
+            font-size: 15px;
+            animation: messageAppear 0.3s ease-out;
+        }
+        
+        @keyframes messageAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .bot-message {
+            background-color: var(--bubble-bot);
+            color: var(--bubble-text-bot);
+            border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
+            align-self: flex-start;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border-color);
+        }
+        
+        .user-message {
+            background-color: var(--bubble-user);
+            color: var(--bubble-text-user);
+            border-radius: var(--radius-lg) 0 var(--radius-lg) var(--radius-lg);
+            align-self: flex-end;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+        
+        .input-container {
+            display: flex;
+            gap: var(--spacing-3);
+            padding: var(--spacing-3);
+            background-color: var(--surface);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--border-color);
+            position: sticky;
+            bottom: 0;
+            margin: var(--spacing-2) 0;
+            z-index: 10;
+        }
+        
+        #user-input {
+            flex: 1;
+            padding: var(--spacing-3) var(--spacing-4);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            font-family: inherit;
+            font-size: 15px;
+            line-height: 1.5;
+            transition: all 0.2s ease;
+            background-color: var(--surface-elevated);
+            color: var(--text-primary);
+        }
+        
+        #user-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+        }
+        
+        #user-input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.8;
+        }
+        
+        button {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 0 var(--spacing-4);
+            font-weight: 500;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 44px;
+            height: 44px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button:disabled {
+            background-color: var(--border-color);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        button i {
+            font-size: 18px;
+        }
+        
+        .typing-indicator {
+            display: flex;
+            gap: var(--spacing-1);
+            padding: var(--spacing-2) var(--spacing-3);
+            background-color: var(--bubble-bot);
+            border-radius: 18px;
+            width: fit-content;
+            margin-bottom: var(--spacing-2);
+            display: none;
+            align-self: flex-start;
+            border: 1px solid var(--border-color);
+        }
+        
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--text-secondary);
+            border-radius: 50%;
+            display: inline-block;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+        
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+        
+        @keyframes typing {
+            0%, 60%, 100% { 
+                transform: translateY(0);
+                opacity: 0.6;
+            }
+            30% { 
+                transform: translateY(-3px);
+                opacity: 1;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .message {
+                max-width: 90%;
+                padding: var(--spacing-2) var(--spacing-3);
+            }
+            
+            .container {
+                padding: var(--spacing-2);
+                padding-bottom: 0;
+            }
+            
+            .chat-container {
+                padding: var(--spacing-2);
+                margin: 0;
+            }
+            
+            .input-container {
+                border-radius: var(--radius-sm);
+                margin: var(--spacing-2) 0 0 0;
+                padding: var(--spacing-2);
+                position: relative;
+                bottom: auto;
+            }
+            
+            button {
+                min-width: 40px;
+                height: 40px;
+            }
+            
+            #user-input {
+                padding: var(--spacing-2);
+                font-size: 14px;
+            }
+            
+            header {
+                padding: var(--spacing-2) 0;
+            }
+            
+            h1 {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <div class="logo">SK</div>
+            <h1>SchuldenKompass</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="chat-container" id="chat-container">
+            <!-- Messages will be added here dynamically -->
+        </div>
+        
+        <div class="typing-indicator" id="typing-indicator">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" id="user-input" placeholder="Nachricht schreiben..." autocomplete="off">
+            <button id="send-button" aria-label="Nachricht senden">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Debugging-Hilfe
+        console.log('Skript wird geladen...');
+        
+        // Globale Variablen
+        let chatContainer, userInput, sendButton, typingIndicator, conversationId;
+        
+        // Initialisierung beim Laden der Seite
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM vollständig geladen');
+            
+            // Elemente auswählen
+            chatContainer = document.getElementById('chat-container');
+            userInput = document.getElementById('user-input');
+            sendButton = document.getElementById('send-button');
+            typingIndicator = document.getElementById('typing-indicator');
+            
+            if (!chatContainer || !userInput || !sendButton || !typingIndicator) {
+                console.error('Fehler: Nicht alle erforderlichen Elemente gefunden');
+                return;
+            }
+            
+            // Konversations-ID erstellen
+            conversationId = 'user_' + Math.random().toString(36).substr(2, 9);
+            console.log('Neue Konversation gestartet mit ID:', conversationId);
+            
+            // Erste Nachricht des Bots anzeigen
+            addMessage(GREETING, 'bot');
+            
+            // Event-Listener für den Senden-Button
+            sendButton.addEventListener('click', function(e) {
+                console.log('Senden-Button geklickt');
+                if (userInput.value.trim() !== '') {
+                    sendMessage();
+                } else {
+                    console.log('Kein Text eingegeben');
+                }
+            });
+            
+            // Event-Listener für die Eingabetaste
+            userInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    console.log('Enter-Taste gedrückt');
+                    if (userInput.value.trim() !== '') {
+                        sendMessage();
+                    }
+                }
+            });
+            
+            // Fokus auf das Eingabefeld setzen
+            userInput.focus();
+            
+            // Automatische Anpassung der Eingabehöhe
+            userInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+                console.log('Eingabefeld wurde aktualisiert');
+            });
+            
+            // Fokus auf das Eingabefeld setzen, wenn auf den Chat-Container geklickt wird
+            chatContainer.addEventListener('click', function() {
+                userInput.focus();
+                console.log('Fokus auf Eingabefeld gesetzt');
+            });
+            
+            // Funktion zum Senden von Nachrichten
+            function sendMessage() {
+                console.log('Sende Nachricht...');
+                const message = userInput.value.trim();
+                
+                if (!message) {
+                    console.log('Keine Nachricht zum Senden');
+                    return;
+                }
+                
+                console.log('Sende Nachricht:', message);
+                
+                // Benutzernachricht zum Chat hinzufügen
+                addMessage(message, 'user');
+                userInput.value = '';
+                
+                // Tippindikator anzeigen
+                console.log('Zeige Tippindikator');
+                typingIndicator.style.display = 'flex';
+                chatContainer.scrollTop = chatContainer.scrollHeight;
+                
+                console.log('Sende Anfrage an Server...');
+                
+                try {
+                    // Nachricht an den Server senden
+                    fetch('/api/chat', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            conversation_id: conversationId
+                        })
+                    })
+                    .then(response => {
+                        console.log('Antwort vom Server erhalten:', response.status);
+                        if (!response.ok) {
+                            throw new Error(`HTTP-Fehler! Status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                .then(data => {
+                    console.log('Server-Antwort verarbeitet:', data);
+                    
+                    // Tippindikator ausblenden
+                    typingIndicator.style.display = 'none';
+                    
+                    // Bot-Antwort zum Chat hinzufügen
+                    if (data && data.response) {
+                        console.log('Bot-Antwort erhalten:', data.response);
+                        
+                        // Antwort in Absätze aufteilen und als separate Nachrichten anzeigen
+                        const paragraphs = data.response.split('\n\n').filter(p => p.trim() !== '');
+                        console.log('Gefundene Absätze:', paragraphs.length);
+                        
+                        if (paragraphs.length === 0) {
+                            console.warn('Keine gültigen Absätze in der Antwort gefunden');
+                            addMessage('Ich habe deine Nachricht erhalten, aber es gab ein Problem mit der Antwort.', 'bot');
+                            return;
+                        }
+                        
+                        // Alle Absätze zu einer Nachricht zusammenführen
+                        const fullMessage = paragraphs.join('\n\n');
+                        addMessage(fullMessage, 'bot');
+                    } else {
+                        console.warn('Keine gültige Antwort vom Server erhalten');
+                        addMessage('Es gab ein Problem mit der Verarbeitung deiner Anfrage. Bitte versuche es erneut.', 'bot');
+                    }
+                })
+                .catch(error => {
+                    console.error('Fehler beim Senden der Nachricht:', error);
+                    typingIndicator.style.display = 'none';
+                    addMessage('Es tut mir leid, es ist ein Fehler aufgetreten. Bitte versuche es später erneut.', 'bot');
+                });
+                
+                } catch (error) {
+                    console.error('Schwerwiegender Fehler:', error);
+                    typingIndicator.style.display = 'none';
+                    addMessage('Ein unerwarteter Fehler ist aufgetreten. Bitte lade die Seite neu.', 'bot');
+                }
+            }
+            
+            // Funktion zum Hinzufügen von Nachrichten zum Chat
+            function addMessage(text, sender) {
+                console.log('Füge Nachricht hinzu:', { sender, text: text.substring(0, 50) + '...' });
+                
+                try {
+                    // Neues Nachrichtenelement erstellen
+                    const messageDiv = document.createElement('div');
+                    messageDiv.classList.add('message');
+                    messageDiv.classList.add(sender + '-message');
+                    
+                    // Sonderzeichen escapen, bevor wir mit der Formatierung beginnen
+                    let safeText = text
+                        .replace(/&/g, '&amp;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                    
+                    // Doppelte Leerzeilen durch einen einzigen Absatzumbruch ersetzen
+                    safeText = safeText.replace(/\n{3,}/g, '\n\n');
+                    
+                    // Listenformatierung verbessern
+                    safeText = safeText.replace(/^(\d+\.\s+)(.*)$/gm, '<li>$2</li>');
+                    
+                    // Listen gruppieren
+                    safeText = safeText.replace(/(<li>.*<\/li>)/gs, function(match) {
+                        // Nur ersetzen, wenn es sich um eine echte Liste handelt
+                        return match.split('</li>').filter(li => li.trim() !== '').length > 1 
+                            ? '<ol style="margin: 0.5em 0; padding-left: 1.5em;">' + match + '</ol>' 
+                            : match;
+                    });
+                    
+                    // Markdown-ähnliche Formatierung zu HTML konvertieren
+                    safeText = safeText
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')  // Fett
+                        .replace(/(^|\s)\*(.*?)\*(\s|$)/g, '$1<em>$2</em>$3')  // Kursiv
+                        .replace(/\n/g, '<br>');  // Zeilenumbrüche
+                    
+                    // Links
+                    safeText = safeText.replace(
+                        /(https?:\/\/[^\s<]+)/g, 
+                        '<a href="$1" target="_blank" rel="noopener noreferrer" style="color: var(--primary); text-decoration: none;">$1</a>'
+                    );
+                    
+                    messageDiv.innerHTML = safeText;
+                    
+                    // Nachricht zum Chat-Container hinzufügen
+                    chatContainer.appendChild(messageDiv);
+                    
+                    // Zum Ende der Nachricht scrollen
+                    const scrollToBottom = () => {
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    };
+                    
+                    // Sofort scrollen
+                    scrollToBottom();
+                    
+                    // Nach einer kurzen Verzögerung erneut scrollen (für dynamisch geladene Inhalte)
+                    setTimeout(scrollToBottom, 100);
+                    
+                    return true;
+                } catch (error) {
+                    console.error('Fehler beim Hinzufügen der Nachricht:', error);
+                    return false;
+                }
+            }
+        });
+        
+        // Initial greeting message from the server
+        const GREETING = `Hallo! Ich bin SchuldenKompass. Ich helfe dir, einen klaren Überblick über deine Finanzen und Schulden zu bekommen und die nächsten Schritte zu planen.
+Alles, was du hier schreibst, bleibt vertraulich.
+
+Erzähl mir in 1-2 Sätzen: Was belastet dich gerade am meisten bei deinen Schulden?`;
+    </script>
+</body>
+</html>

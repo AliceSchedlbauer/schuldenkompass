@@ -1,0 +1,171 @@
+/* Base Styles */
+:root {
+    --primary: #007AFF;
+    --primary-light: rgba(0, 122, 255, 0.1);
+    --primary-dark: #0062CC;
+    --background: #F5F5F7;
+    --surface: #FFFFFF;
+    --text-primary: #1D1D1F;
+    --text-secondary: #86868B;
+    --bubble-user: #007AFF;
+    --bubble-bot: #F2F2F7;
+    --bubble-text-user: #FFFFFF;
+    --bubble-text-bot: #1C1C1E;
+    --border-color: #D1D1D6;
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --radius-sm: 8px;
+    --radius-lg: 12px;
+    --spacing-1: 4px;
+    --spacing-2: 8px;
+    --spacing-3: 12px;
+    --spacing-4: 16px;
+    --spacing-5: 20px;
+    --spacing-6: 24px;
+}
+
+/* Dark Mode */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --background: #1C1C1E;
+        --surface: #2C2C2E;
+        --text-primary: #F5F5F7;
+        --text-secondary: #98989D;
+        --bubble-user: #0A84FF;
+        --bubble-bot: #3A3A3C;
+        --bubble-text-user: #FFFFFF;
+        --bubble-text-bot: #F5F5F7;
+        --border-color: #38383A;
+    }
+}
+
+/* Layout */
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--background);
+    color: var(--text-primary);
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--spacing-4);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Chat Container */
+.chat-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-height: calc(100vh - 120px);
+    background-color: var(--surface);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+}
+
+/* Messages Area */
+.messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--spacing-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+
+/* Message Bubbles */
+.message {
+    max-width: 80%;
+    padding: var(--spacing-3) var(--spacing-4);
+    border-radius: var(--radius-lg);
+    line-height: 1.4;
+    word-wrap: break-word;
+}
+
+.message.user {
+    align-self: flex-end;
+    background-color: var(--bubble-user);
+    color: var(--bubble-text-user);
+    border-bottom-right-radius: var(--radius-sm);
+}
+
+.message.bot {
+    align-self: flex-start;
+    background-color: var(--bubble-bot);
+    color: var(--bubble-text-bot);
+    border-bottom-left-radius: var(--radius-sm);
+}
+
+/* Input Area */
+.input-area {
+    padding: var(--spacing-3);
+    background-color: var(--surface);
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    gap: var(--spacing-2);
+}
+
+.input-field {
+    flex: 1;
+    padding: var(--spacing-3);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    font-size: 16px;
+    background-color: var(--surface);
+    color: var(--text-primary);
+}
+
+.send-button {
+    padding: 0 var(--spacing-4);
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
+
+.send-button:hover {
+    background-color: var(--primary-dark);
+}
+
+/* Typing Indicator */
+.typing-indicator {
+    display: flex;
+    gap: 4px;
+    padding: var(--spacing-3) var(--spacing-4);
+    background-color: var(--bubble-bot);
+    border-radius: var(--radius-lg);
+    align-self: flex-start;
+    margin-bottom: var(--spacing-2);
+}
+
+.typing-dot {
+    width: 8px;
+    height: 8px;
+    background-color: var(--text-secondary);
+    border-radius: 50%;
+    animation: typing 1.4s infinite ease-in-out;
+}
+
+.typing-dot:nth-child(1) { animation-delay: 0s; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+    0%, 60%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-4px); }
+}
+
+/* Utility Classes */
+.hidden {
+    display: none !important;
+}
